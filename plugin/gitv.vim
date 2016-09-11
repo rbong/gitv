@@ -526,14 +526,32 @@ fu! s:SetupMappings() "{{{
     nnoremap <buffer> <silent> P :call <SID>JumpToHead()<cr>
     nnoremap <buffer> <silent> p :<c-u>call <SID>JumpToParent()<cr>
 
+    "alternative vim-like movement mappings
+    nmap <buffer> <silent> ]x x
+    nmap <buffer> <silent> [x X
+    "prevents triggering the other mappings that start with r
+    nnoremap <buffer> <silent> ]r :call <SID>JumpToRef(0)<cr>
+    nmap <buffer> <silent> [r R
+    nmap <buffer> <silent> gP P
+    nmap <buffer> <silent> gp p
+
+    "hash grabbing
+    "yank the commit hash
+    nnoremap <buffer> <silent> y<C-g> :call setreg(v:register, <SID>GetGitvSha('.')))<cr>
+    if has('mac') || !has('unix') || has('xterm_clipboard')
+        nmap <buffer> <silent> yc "+y<C-g>
+    else
+        nmap <buffer> <silent> yc y<C-g>
+    endif
+    "insert the commit hash in command mode
+    cnoremap <buffer> <expr> <C-r><C-g> fnameescape(<SID>GetGitvSha('.'))
+    "start a command line with the current hash
+    nnoremap <buffer> . : <C-r>=fnameescape(<SID>GetGitvSha('.'))<cr><Home>
+    "start a command line with the current hash range
+    vnoremap <buffer> . :<C-u> <C-r>=fnameescape(<SID>GetGitvSha("'>"))<cr>^..<C-r>=fnameescape(<SID>GetGitvSha("'<"))<cr><Home>
+
     "misc
     nnoremap <buffer> git :Git<space>
-    " yank the commit hash
-    if has('mac') || !has('unix') || has('xterm_clipboard')
-        nnoremap <buffer> <silent> yc m'$F[w"+yw`'
-    else
-        nnoremap <buffer> <silent> yc m'$F[wyw`'
-    endif
 endf "}}}
 fu! s:SetupBufferCommands(fileMode) "{{{
     silent command! -buffer -nargs=* -complete=customlist,s:fugitive_GitComplete Git call <sid>MoveIntoPreviewAndExecute("unsilent Git <args>",1)|normal u
