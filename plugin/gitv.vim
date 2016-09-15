@@ -1079,11 +1079,8 @@ fu! s:BisectGoodBad(goodbad) range "{{{
 endf "}}}
 fu! s:BisectSkip(mode) range "{{{
     if exists('b:Bisecting') && s:BisectHasStarted()
-        if a:mode == 'n'
+        if a:mode == 'n' && v:count
             let loops = abs(v:count)
-            if loops == 0
-                let loops = 1
-            endif
             let loop = 0
             let errors = 0
             while loop < loops
@@ -1100,7 +1097,7 @@ fu! s:BisectSkip(mode) range "{{{
             if errors == loops
                 return
             endif
-        else "visual mode
+        else "visual mode or no range
             let cmd = 'bisect skip '
             let refs = s:GetGitvSha(a:lastline)
             if a:firstline != a:lastline
